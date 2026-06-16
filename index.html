@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoApply AI - نظام التقديم الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Auth Screen */
+        .auth-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--bg), #1a1f3a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .auth-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo i {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-logo h1 {
+            font-size: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 0.25rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .form-group { margin-bottom: 1.25rem; }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border-radius: 12px;
+            border: none;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.3); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Main App */
+        .app { display: none; }
+        .app.active { display: block; }
+
+        .header {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.4rem; font-weight: 800; }
+        .logo i {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .tab:hover { color: var(--text); }
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover { border-color: var(--primary); }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover { border-color: var(--primary); background: rgba(99,102,241,0.05); }
+        .upload-area i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
+        .upload-area input { display: none; }
+
+        .skill-tag {
+            background: rgba(99,102,241,0.15);
+            color: var(--primary);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin: 0.25rem;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .job-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 4px; height: 100%;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .job-card:hover::before { opacity: 1; }
+        .job-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+
+        .match-badge {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(16,185,129,0.15); color: var(--success); }
+        .badge-info { background: rgba(99,102,241,0.15); color: var(--primary); }
+        .badge-warning { background: rgba(245,158,11,0.15); color: var(--accent); }
+        .badge-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: toastIn 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        .toast.info { border-color: var(--primary); }
+
+        @keyframes toastIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .cv-preview {
+            background: white;
+            color: #333;
+            padding: 2rem;
+            border-radius: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            line-height: 1.8;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .cv-preview h2 { color: #1e293b; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; }
+        .cv-preview .highlight { background: #fef3c7; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body { padding: 1.5rem; }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th { color: var(--text-muted); font-weight: 600; font-size: 0.9rem; }
+        .data-table tr:hover td { background: rgba(99,102,241,0.05); }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            width: 50px; height: 26px;
+            background: var(--border);
+            border-radius: 13px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px; height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px; right: 2px;
+            transition: all 0.3s;
+        }
+
+        .toggle.active .toggle-switch { background: var(--success); }
+        .toggle.active .toggle-switch::after { right: 26px; }
+
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; gap: 1rem; }
+            .tabs { overflow-x: auto; }
+            .auth-card { margin: 1rem; padding: 1.5rem; }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <i class="fas fa-robot"></i>
+                <h1>AutoApply AI</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">مساعدك الذكي للتوظيف</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuth('login')">تسجيل الدخول</button>
+                <button class="auth-tab" onclick="switchAuth('register')">حساب جديد</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <input type="email" class="form-input" id="loginEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" class="form-input" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> دخول
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" onsubmit="handleRegister(event)" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">الاسم الكامل</label>
+                    <input type="text" class="form-input" id="regName" required placeholder="محمد أحمد">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <input type="email" class="form-input" id="regEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" class="form-input" id="regPassword" required placeholder="••••••••" minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary" id="registerBtn">
+                    <i class="fas fa-user-plus"></i> إنشاء حساب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app" id="mainApp">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>AutoApply AI</span>
+                </div>
+                <div class="user-menu">
+                    <span style="color: var(--text-muted); font-size: 0.9rem;" id="userName">User</span>
+                    <div class="user-avatar" id="userAvatar" onclick="logout()">U</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="tabs">
+                <button class="tab active" onclick="showPanel('dashboard')">
+                    <i class="fas fa-chart-line"></i> لوحة التحكم
+                </button>
+                <button class="tab" onclick="showPanel('upload')">
+                    <i class="fas fa-upload"></i> السيرة الذاتية
+                </button>
+                <button class="tab" onclick="showPanel('jobs')">
+                    <i class="fas fa-briefcase"></i> الوظائف
+                </button>
+                <button class="tab" onclick="showPanel('applications')">
+                    <i class="fas fa-paper-plane"></i> التقديمات
+                </button>
+                <button class="tab" onclick="showPanel('settings')">
+                    <i class="fas fa-cog"></i> الإعدادات
+                </button>
+            </div>
+
+            <!-- Dashboard Panel -->
+            <div class="panel active" id="dashboard-panel">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="dashJobs">0</div>
+                        <div class="stat-label">وظيفة متاحة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="dashApplied">0</div>
+                        <div class="stat-label">تقديم</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="dashToday">0</div>
+                        <div class="stat-label">اليوم</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="dashRate">0%</div>
+                        <div class="stat-label">معدل الرد</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-lightbulb" style="color: var(--accent);"></i> نصائح سريعة</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="padding: 1rem; background: rgba(99,102,241,0.1); border-radius: 12px;">
+                            <i class="fas fa-file-upload" style="color: var(--primary); font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                            <h4 style="margin-bottom: 0.5rem;">ارفع سيرتك الذاتية</h4>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">سنحللها ونستخرج مهاراتك تلقائياً</p>
+                        </div>
+                        <div style="padding: 1rem; background: rgba(16,185,129,0.1); border-radius: 12px;">
+                            <i class="fas fa-search" style="color: var(--success); font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                            <h4 style="margin-bottom: 0.5rem;">ابحث عن الوظائف</h4>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">جلب وظائف من مصادر متعددة</p>
+                        </div>
+                        <div style="padding: 1rem; background: rgba(6,182,212,0.1); border-radius: 12px;">
+                            <i class="fas fa-magic" style="color: var(--secondary); font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                            <h4 style="margin-bottom: 0.5rem;">خصص سيرتك</h4>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">الذكاء الاصطناعي يُحسّنها لكل وظيفة</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Panel -->
+            <div class="panel" id="upload-panel">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-cloud-upload-alt" style="color: var(--primary);"></i> رفع السيرة الذاتية</div>
+                    <div class="upload-area" onclick="document.getElementById('cvFile').click()">
+                        <i class="fas fa-file-upload"></i>
+                        <h3>اختر ملف السيرة الذاتية</h3>
+                        <p>PDF أو DOCX - سيتم تحليله بالذكاء الاصطناعي</p>
+                        <input type="file" id="cvFile" accept=".pdf,.docx" onchange="uploadCV(event)">
+                    </div>
+
+                    <div id="cvResults" style="display: none; margin-top: 1.5rem;">
+                        <h4 style="margin-bottom: 0.75rem;">نتائج التحليل:</h4>
+                        <div id="cvInfo"></div>
+                        <div id="cvSkills" style="margin-top: 1rem;"></div>
+                    </div>
+                </div>
+
+                <div class="card" id="cvListCard" style="display: none;">
+                    <div class="card-title"><i class="fas fa-history" style="color: var(--secondary);"></i> سيرك الذاتية المرفوعة</div>
+                    <div id="cvList"></div>
+                </div>
+            </div>
+
+            <!-- Jobs Panel -->
+            <div class="panel" id="jobs-panel">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                        <div class="card-title" style="margin: 0;"><i class="fas fa-briefcase" style="color: var(--primary);"></i> الوظائف المتاحة</div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-primary btn-sm" onclick="scrapeJobs()" id="scrapeBtn">
+                                <i class="fas fa-sync"></i> تحديث
+                            </button>
+                        </div>
+                    </div>
+                    <div id="jobsList">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>اضغط "تحديث" لجلب الوظائف</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications Panel -->
+            <div class="panel" id="applications-panel">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-clipboard-check" style="color: var(--success);"></i> سجل التقديمات</div>
+                    <div id="applicationsList">
+                        <div class="empty-state">
+                            <i class="fas fa-paper-plane" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>لم تقم بالتقديم على أي وظيفة بعد</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="panel" id="settings-panel">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-key" style="color: var(--accent);"></i> مفاتيح API</div>
+                        <div class="form-group">
+                            <label class="form-label">OpenAI API Key (للتحليل الذكي)</label>
+                            <input type="password" class="form-input" id="openaiKey" placeholder="sk-...">
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="saveSettings()" style="width: auto;">
+                            <i class="fas fa-save"></i> حفظ
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-sliders-h" style="color: var(--secondary);"></i> إعدادات التقديم</div>
+                        <div class="form-group">
+                            <label class="form-label">الحد الأقصى يومياً</label>
+                            <input type="number" class="form-input" id="maxDaily" value="10" min="1" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الحد الأدنى للتطابق (%)</label>
+                            <input type="number" class="form-input" id="minMatch" value="70" min="0" max="100">
+                        </div>
+                        <div class="toggle active" style="margin-bottom: 1rem;" onclick="this.classList.toggle('active')">
+                            <div class="toggle-switch"></div>
+                            <span>التخصيص التلقائي بالذكاء الاصطناعي</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="border-color: var(--danger);">
+                    <div class="card-title" style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> تحذير قانوني</div>
+                    <p style="color: var(--text-muted); line-height: 2;">
+                        • هذا النظام يُحضّر لك التقديم فقط، أنت تُرسله يدوياً<br>
+                        • التقديم التلقائي يُخالف شروط معظم مواقع التوظيف<br>
+                        • قد يؤدي إلى حظر حسابك بشكل دائم
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customize Modal -->
+    <div class="modal-overlay" id="customizeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>معاينة السيرة المُخصصة</h3>
+                <button class="close-btn" onclick="closeModal('customizeModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="customizeContent"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('customizeModal')">إلغاء</button>
+                <button class="btn btn-success btn-sm" onclick="confirmApply()">
+                    <i class="fas fa-check"></i> إنشاء طلب تقديم
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // API Configuration
+        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:8000' : '';
+        let token = localStorage.getItem('token');
+        let currentUser = null;
+        let currentCV = null;
+        let currentJob = null;
+        let userSkills = [];
+
+        // Check auth on load
+        if (token) {
+            verifyToken();
+        }
+
+        async function verifyToken() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    showApp();
+                    loadDashboard();
+                } else {
+                    localStorage.removeItem('token');
+                }
+            } catch (e) {
+                console.log('API not running');
+            }
+        }
+
+        // Auth Functions
+        function switchAuth(type) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (type === 'login') {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerForm').style.display = 'none';
+            } else {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> جاري الدخول...';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    token = data.access_token;
+                    localStorage.setItem('token', token);
+                    currentUser = data.user;
+                    showApp();
+                    loadDashboard();
+                    showToast('success', 'تم تسجيل الدخول بنجاح!');
+                } else {
+                    showToast('error', data.detail || 'خطأ في البيانات');
+                }
+            } catch (err) {
+                showToast('error', 'خطأ في الاتصال بالسيرفر');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> دخول';
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> جاري الإنشاء...';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('regName').value,
+                        email: document.getElementById('regEmail').value,
+                        password: document.getElementById('regPassword').value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    token = data.access_token;
+                    localStorage.setItem('token', token);
+                    currentUser = data.user;
+                    showApp();
+                    loadDashboard();
+                    showToast('success', 'تم إنشاء الحساب بنجاح!');
+                } else {
+                    showToast('error', data.detail || 'خطأ في التسجيل');
+                }
+            } catch (err) {
+                showToast('error', 'خطأ في الاتصال بالسيرفر');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> إنشاء حساب';
+            }
+        }
+
+        function showApp() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainApp').classList.add('active');
+
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.name || currentUser.email;
+                document.getElementById('userAvatar').textContent = (currentUser.name || currentUser.email)[0].toUpperCase();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            currentUser = null;
+            location.reload();
+        }
+
+        // Panel Switching
+        function showPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(panelId + '-panel').classList.add('active');
+            event.target.closest('.tab').classList.add('active');
+
+            if (panelId === 'jobs') loadJobs();
+            if (panelId === 'applications') loadApplications();
+            if (panelId === 'dashboard') loadDashboard();
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                document.getElementById('dashJobs').textContent = data.total_jobs;
+                document.getElementById('dashApplied').textContent = data.total_applications;
+                document.getElementById('dashToday').textContent = data.today_applications;
+                document.getElementById('dashRate').textContent = data.response_rate + '%';
+            } catch (e) {}
+        }
+
+        // Upload CV
+        async function uploadCV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showToast('info', 'جاري رفع وتحليل السيرة...');
+
+            try {
+                const res = await fetch(`${API_BASE}/cv/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!res.ok) throw new Error('Upload failed');
+
+                const data = await res.json();
+                currentCV = data;
+                userSkills = data.extracted.skills;
+
+                document.getElementById('cvResults').style.display = 'block';
+                document.getElementById('cvInfo').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                        <div><strong>الاسم:</strong> ${data.extracted.name}</div>
+                        <div><strong>المسمى:</strong> ${data.extracted.title}</div>
+                        <div><strong>الخبرة:</strong> ${data.extracted.experience_years || 'غير محدد'} سنة</div>
+                        <div><strong>البريد:</strong> ${data.extracted.email || 'غير محدد'}</div>
+                    </div>
+                `;
+
+                document.getElementById('cvSkills').innerHTML = 
+                    data.extracted.skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+
+                showToast('success', `تم التحليل! ${data.extracted.skills.length} مهارة مكتشفة`);
+                loadCVList();
+
+            } catch (err) {
+                showToast('error', 'خطأ: ' + err.message);
+            }
+        }
+
+        async function loadCVList() {
+            try {
+                const res = await fetch(`${API_BASE}/cv/list`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const cvs = await res.json();
+
+                if (cvs.length > 0) {
+                    document.getElementById('cvListCard').style.display = 'block';
+                    document.getElementById('cvList').innerHTML = cvs.map(cv => `
+                        <div style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">${cv.file_name}</div>
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">
+                                    ${cv.extracted.title || ''} - ${cv.extracted.skills?.length || 0} مهارة
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {}
+        }
+
+        // Jobs
+        async function scrapeJobs() {
+            const btn = document.getElementById('scrapeBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>';
+
+            try {
+                const res = await fetch(`${API_BASE}/jobs/scrape`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                showToast('success', data.message);
+                loadJobs();
+                loadDashboard();
+            } catch (err) {
+                showToast('error', 'خطأ في الجلب');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync"></i> تحديث';
+            }
+        }
+
+        async function loadJobs() {
+            try {
+                const skillsParam = userSkills.length > 0 ? `?skills=${userSkills.join(',')}&min_match=50` : '';
+                const res = await fetch(`${API_BASE}/jobs/search${skillsParam}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const jobs = await res.json();
+
+                const container = document.getElementById('jobsList');
+
+                if (jobs.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>لا توجد وظائف متاحة</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = jobs.map(job => `
+                    <div class="job-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">${job.title}</h3>
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                                    <i class="fas fa-building"></i> ${job.company || 'غير محدد'} | 
+                                    <i class="fas fa-map-marker-alt"></i> ${job.location || 'غير محدد'}
+                                </p>
+                            </div>
+                            ${job.match_score ? `<span class="match-badge">${job.match_score}% تطابق</span>` : ''}
+                        </div>
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">${job.description || ''}</p>
+                        <div style="margin-bottom: 1rem;">
+                            ${job.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--accent); font-weight: 700;">${job.salary || 'الراتب غير محدد'}</span>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span class="badge badge-info">${job.source}</span>
+                                <button class="btn btn-primary btn-sm" onclick="customizeForJob(${job.id})">
+                                    <i class="fas fa-magic"></i> تخصيص
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                showToast('error', 'خطأ في تحميل الوظائف');
+            }
+        }
+
+        // Customize
+        async function customizeForJob(jobId) {
+            if (!currentCV) {
+                showToast('error', 'ارفع سيرتك الذاتية أولاً');
+                return;
+            }
+
+            currentJob = jobId;
+            showToast('info', 'جاري التخصيص بالذكاء الاصطناعي...');
+
+            try {
+                const res = await fetch(`${API_BASE}/cv/customize`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cv_id: currentCV.cv_id,
+                        job_id: jobId,
+                        tone: 'professional'
+                    })
+                });
+
+                const data = await res.json();
+
+                document.getElementById('customizeContent').innerHTML = `
+                    <div style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h4 style="color: var(--success);">
+                                <i class="fas fa-check-circle"></i> 
+                                تحسين التطابق: ${data.match_improvement}%
+                            </h4>
+                            <span class="badge badge-info">${data.ai_model_used}</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <h4>الملخص المُحسّن:</h4>
+                        <div class="cv-preview" style="margin-top: 0.5rem; max-height: 200px;">
+                            ${data.customized_summary.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <h4>المهارات المُبرزة:</h4>
+                        <div style="margin-top: 0.5rem;">
+                            ${data.highlighted_skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    ${data.missing_skills.length > 0 ? `
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="color: var(--accent);">مهارات مطلوبة غير موجودة:</h4>
+                        <div style="margin-top: 0.5rem;">
+                            ${data.missing_skills.map(s => `<span class="skill-tag" style="background: rgba(239,68,68,0.15); color: var(--danger);">${s}</span>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div>
+                        <h4>خطاب التغطية:</h4>
+                        <div class="cv-preview" style="margin-top: 0.5rem; max-height: 250px;">
+                            ${data.cover_letter.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('customizeModal').classList.add('active');
+
+            } catch (err) {
+                showToast('error', 'خطأ في التخصيص');
+            }
+        }
+
+        async function confirmApply() {
+            closeModal('customizeModal');
+            showToast('info', 'جاري إنشاء طلب التقديم...');
+
+            try {
+                const res = await fetch(`${API_BASE}/applications/apply`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        job_id: currentJob,
+                        cv_id: currentCV.cv_id
+                    })
+                });
+
+                const data = await res.json();
+                showToast('success', data.message);
+                loadApplications();
+                loadDashboard();
+
+            } catch (err) {
+                showToast('error', 'خطأ في إنشاء الطلب');
+            }
+        }
+
+        // Applications
+        async function loadApplications() {
+            try {
+                const res = await fetch(`${API_BASE}/applications`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const apps = await res.json();
+
+                const container = document.getElementById('applicationsList');
+
+                if (apps.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-paper-plane" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>لم تقم بالتقديم على أي وظيفة بعد</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = apps.map(app => `
+                    <div class="job-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4>${app.job_title}</h4>
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                                    <i class="fas fa-building"></i> ${app.company} | 
+                                    <i class="fas fa-calendar"></i> ${app.applied_at || 'قيد المراجعة'}
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <span class="badge badge-info">${app.source}</span>
+                                <span class="badge ${app.status === 'sent' ? 'badge-success' : app.status === 'ready_to_send' ? 'badge-success' : 'badge-warning'}">
+                                    ${app.status === 'sent' ? 'تم الإرسال' : app.status === 'ready_to_send' ? 'جاهز للإرسال' : 'مسودة'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                showToast('error', 'خطأ في تحميل التقديمات');
+            }
+        }
+
+        // Settings
+        async function saveSettings() {
+            const settings = {
+                openai_key: document.getElementById('openaiKey').value,
+                max_daily: parseInt(document.getElementById('maxDaily').value),
+                min_match: parseInt(document.getElementById('minMatch').value)
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                if (res.ok) {
+                    showToast('success', 'تم حفظ الإعدادات');
+                }
+            } catch (err) {
+                showToast('error', 'خطأ في الحفظ');
+            }
+        }
+
+        // Utilities
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+            const colors = { success: 'var(--success)', error: 'var(--danger)', info: 'var(--primary)' };
+
+            toast.innerHTML = `<i class="fas ${icons[type]}" style="color: ${colors[type]};"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        document.getElementById('customizeModal').addEventListener('click', (e) => {
+            if (e.target.id === 'customizeModal') closeModal('customizeModal');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  autoapply:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-autoapply-secret-key-change-me}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - DATABASE_PATH=/app/data/autoapply.db
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    restart: unless-stopped
