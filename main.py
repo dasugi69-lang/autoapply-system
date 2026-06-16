@@ -50,7 +50,7 @@ app.add_middleware(
 )
 
 # Serve static files (frontend)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 # ==================== DATABASE ====================
 DB_PATH = os.getenv("DATABASE_PATH", "autoapply.db")
